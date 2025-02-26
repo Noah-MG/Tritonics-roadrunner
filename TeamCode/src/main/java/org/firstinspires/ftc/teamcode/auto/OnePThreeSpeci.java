@@ -6,11 +6,11 @@ import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.RaceAction;
 import com.acmerobotics.roadrunner.SequentialAction;
+import com.acmerobotics.roadrunner.SleepAction;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.firstinspires.ftc.teamcode.MecanumDrive;
 
@@ -19,58 +19,77 @@ import org.firstinspires.ftc.teamcode.MecanumDrive;
 public final class OnePThreeSpeci extends LinearOpMode {
     Pose2d initialPose = new Pose2d(-10, 65, Math.toRadians(90));
 
+    public static double x_offset = -2;
+
     @Override
     public void runOpMode(){
 
-        System.Arm arm = new System.Arm(this);
-        System.Slides slides = new System.Slides(this);
-        System.Intake intake = new System.Intake(this);
+        System.Arm arm = new System.Arm(this, true);
+        System.Slides slides = new System.Slides(this, true);
+        System.Intake intake = new System.Intake(this, true);
         MecanumDrive drive = new MecanumDrive(hardwareMap, initialPose);
 
         waitForStart();
 
         if(isStopRequested()){return;}
 
-        Actions.runBlocking( new SequentialAction(
+        Actions.runBlocking(
                 new ParallelAction(
                         drive.actionBuilder(initialPose)
                                 .strafeTo(new Vector2d(-3, 33))
                                 .build(),
                         arm.closeSpecimen(),
-                        slides.raiseSlides()
-                ),
+                        slides.raiseSlides(),
+                        intake.raiseClaw(),
+                        intake.closeIntake()
+                ));
+
+        Actions.runBlocking(
                 new ParallelAction(
                         drive.actionBuilder(drive.localizer.getPose())
                                 .waitSeconds(0.5)
-                                .strafeToLinearHeading(new Vector2d(-22, 52), Math.toRadians(230))
+                                .strafeToLinearHeading(new Vector2d(-30+x_offset, 47), Math.toRadians(240))
                                 .build(),
                         slides.lowerSlides(),
                         new SequentialAction(
+                                new SleepAction(1.5),
                                 slides.extendSlides(),
                                 intake.lowerPaddle()
                         )
-                ),
+                ));
+
+        Actions.runBlocking( new SequentialAction(
                 arm.openSpecimen(),
                 drive.actionBuilder(drive.localizer.getPose())
-                        .turn(Math.toRadians(-80))
-                        .strafeToLinearHeading(new Vector2d(-30, 52), Math.toRadians(230))
-                        .turn(Math.toRadians(-80))
-                        .build(),
-                new RaceAction(
+                        .turn(Math.toRadians(-110))
+                        .strafeToLinearHeading(new Vector2d(-41+x_offset, 47), Math.toRadians(240))
+                        .turn(Math.toRadians(-110))
+                        .build()
+        ));
+
+        Actions.runBlocking(
+                new ParallelAction(
                         drive.actionBuilder(drive.localizer.getPose())
                             .splineToLinearHeading(new Pose2d(-40, 70, Math.toRadians(-90)), Math.toRadians(90))
                             .build(),
                         slides.retractSlides(),
                         intake.raiseClaw()
-                ),
+                ));
+
+        Actions.runBlocking(
                 new ParallelAction(
                         arm.closeSpecimen(),
-                        slides.raiseSlides(),
-                        drive.actionBuilder(drive.localizer.getPose())
-                                .setTangent(Math.toRadians(-90))
-                                .splineToLinearHeading(new Pose2d(-3, 33, Math.toRadians(90)), Math.toRadians(-90))
-                                .build()
-                ),
+                        new SequentialAction(
+                            new SleepAction(0.5),
+                            new ParallelAction(
+                            slides.raiseSlides(),
+                            drive.actionBuilder(drive.localizer.getPose())
+                                    .setTangent(Math.toRadians(-90))
+                                    .splineToLinearHeading(new Pose2d(-1, 33, Math.toRadians(90)), Math.toRadians(-90))
+                                    .build()))
+                ));
+
+        Actions.runBlocking(
                 new ParallelAction(
                         drive.actionBuilder(drive.localizer.getPose())
                                 .waitSeconds(0.5)
@@ -81,15 +100,22 @@ public final class OnePThreeSpeci extends LinearOpMode {
                                 slides.lowerSlides(),
                                 arm.openSpecimen()
                         )
-                ),
+                ));
+
+        Actions.runBlocking(
                 new ParallelAction(
                         arm.closeSpecimen(),
-                        slides.raiseSlides(),
-                        drive.actionBuilder(drive.localizer.getPose())
-                                .setTangent(Math.toRadians(-90))
-                                .splineToLinearHeading(new Pose2d(-1, 33, Math.toRadians(90)), Math.toRadians(-90))
-                                .build()
-                ),
+                        new SequentialAction(
+                                new SleepAction(0.5),
+                                new ParallelAction(
+                                        slides.raiseSlides(),
+                                        drive.actionBuilder(drive.localizer.getPose())
+                                                .setTangent(Math.toRadians(-90))
+                                                .splineToLinearHeading(new Pose2d(1, 33, Math.toRadians(90)), Math.toRadians(-90))
+                                                .build()))
+                ));
+
+        Actions.runBlocking(
                 new ParallelAction(
                         drive.actionBuilder(drive.localizer.getPose())
                                 .waitSeconds(0.5)
@@ -100,15 +126,22 @@ public final class OnePThreeSpeci extends LinearOpMode {
                                 slides.lowerSlides(),
                                 arm.openSpecimen()
                         )
-                ),
+                ));
+
+        Actions.runBlocking(
                 new ParallelAction(
                         arm.closeSpecimen(),
-                        slides.raiseSlides(),
-                        drive.actionBuilder(drive.localizer.getPose())
-                                .setTangent(Math.toRadians(-90))
-                                .splineToLinearHeading(new Pose2d(1, 33, Math.toRadians(90)), Math.toRadians(-90))
-                                .build()
-                ),
+                        new SequentialAction(
+                                new SleepAction(0.5),
+                                new ParallelAction(
+                                        slides.raiseSlides(),
+                                        drive.actionBuilder(drive.localizer.getPose())
+                                                .setTangent(Math.toRadians(-90))
+                                                .splineToLinearHeading(new Pose2d(2, 33, Math.toRadians(90)), Math.toRadians(-90))
+                                                .build()))
+                ));
+
+        Actions.runBlocking(
                 new ParallelAction(
                         drive.actionBuilder(drive.localizer.getPose())
                                 .waitSeconds(0.5)
@@ -116,6 +149,6 @@ public final class OnePThreeSpeci extends LinearOpMode {
                                 .build(),
                         slides.lowerSlides()
                 )
-        ));
+        );
     }
 }
