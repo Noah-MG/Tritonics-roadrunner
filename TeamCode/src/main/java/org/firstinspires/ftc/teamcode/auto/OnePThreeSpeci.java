@@ -1,12 +1,13 @@
 package org.firstinspires.ftc.teamcode.auto;
 
 import com.acmerobotics.dashboard.config.Config;
-import com.acmerobotics.roadrunner.Action;
+import com.acmerobotics.roadrunner.AngularVelConstraint;
 import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.Pose2d;
-import com.acmerobotics.roadrunner.RaceAction;
 import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.SleepAction;
+import com.acmerobotics.roadrunner.TranslationalVelConstraint;
+import com.acmerobotics.roadrunner.TurnConstraints;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
@@ -19,7 +20,8 @@ import org.firstinspires.ftc.teamcode.MecanumDrive;
 public final class OnePThreeSpeci extends LinearOpMode {
     Pose2d initialPose = new Pose2d(-10, 65, Math.toRadians(90));
 
-    public static double x_offset = -2;
+    public static double x_offset = -4;
+    public static double dashboardVar = 60;
 
     @Override
     public void runOpMode(){
@@ -29,6 +31,10 @@ public final class OnePThreeSpeci extends LinearOpMode {
         System.Intake intake = new System.Intake(this, true);
         MecanumDrive drive = new MecanumDrive(hardwareMap, initialPose);
 
+        Ports.Builder builder = new Ports.Builder();
+        builder.allActive = true;
+        Ports ports = new Ports(this, builder);
+
         waitForStart();
 
         if(isStopRequested()){return;}
@@ -36,7 +42,7 @@ public final class OnePThreeSpeci extends LinearOpMode {
         Actions.runBlocking(
                 new ParallelAction(
                         drive.actionBuilder(initialPose)
-                                .strafeTo(new Vector2d(-3, 33))
+                                .strafeTo(new Vector2d(-3, 34))
                                 .build(),
                         arm.closeSpecimen(),
                         slides.raiseSlides(),
@@ -48,7 +54,7 @@ public final class OnePThreeSpeci extends LinearOpMode {
                 new ParallelAction(
                         drive.actionBuilder(drive.localizer.getPose())
                                 .waitSeconds(0.5)
-                                .strafeToLinearHeading(new Vector2d(-30+x_offset, 47), Math.toRadians(240))
+                                .strafeToLinearHeading(new Vector2d(-30+x_offset, 47), Math.toRadians(250))
                                 .build(),
                         slides.lowerSlides(),
                         new SequentialAction(
@@ -58,11 +64,28 @@ public final class OnePThreeSpeci extends LinearOpMode {
                         )
                 ));
 
+        ports.lsh_l.setPower(0);
+        ports.lsh_r.setPower(0);
+
         Actions.runBlocking( new SequentialAction(
                 arm.openSpecimen(),
                 drive.actionBuilder(drive.localizer.getPose())
                         .turn(Math.toRadians(-110))
-                        .strafeToLinearHeading(new Vector2d(-41+x_offset, 47), Math.toRadians(240))
+                        .build()
+        ));
+
+        Actions.runBlocking(new ParallelAction(
+                intake.raiseClaw(),
+                drive.actionBuilder(drive.localizer.getPose())
+                        .setTangent(Math.toRadians(14))
+                        .strafeToLinearHeading(new Vector2d(-41+x_offset, 47), Math.toRadians(250))
+                        .build()
+        ));
+
+        Actions.runBlocking( new SequentialAction(
+                intake.lowerPaddle(),
+                drive.actionBuilder(drive.localizer.getPose())
+                        .waitSeconds(0.4)
                         .turn(Math.toRadians(-110))
                         .build()
         ));
@@ -72,7 +95,10 @@ public final class OnePThreeSpeci extends LinearOpMode {
                         drive.actionBuilder(drive.localizer.getPose())
                             .splineToLinearHeading(new Pose2d(-40, 70, Math.toRadians(-90)), Math.toRadians(90))
                             .build(),
-                        slides.retractSlides(),
+                        new SequentialAction(
+                                new SleepAction(0.5),
+                                slides.retractSlides()
+                        ),
                         intake.raiseClaw()
                 ));
 

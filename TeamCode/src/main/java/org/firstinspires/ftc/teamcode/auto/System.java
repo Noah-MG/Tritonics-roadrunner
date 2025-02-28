@@ -7,6 +7,7 @@ import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 public class System {
 
@@ -26,15 +27,21 @@ public class System {
         }
 
         public class CloseSpecimen implements Action {
-
+            ElapsedTime elapsedTime = new ElapsedTime();
+            Boolean initialized = false;
             @Override
             public boolean run(@NonNull TelemetryPacket packet){
-                ports.specimenClaw.setPosition(1);
-                ports.outtakePitchLL.setPosition(0.9);
-                ports.outtakePitchLR.setPosition(0.1);
-                ports.outtakePitchRR.setPosition(0.1);
-                ports.outtakePitchRL.setPosition(0.9);
-                return false;
+                if(!initialized) {
+                    ports.specimenClaw.setPosition(1);
+                }
+                if(elapsedTime.seconds()>1) {
+                    ports.outtakePitchLL.setPosition(0.9);
+                    ports.outtakePitchLR.setPosition(0.1);
+                    ports.outtakePitchRR.setPosition(0.1);
+                    ports.outtakePitchRL.setPosition(0.9);
+                    return false;
+                }
+                return true;
             }
 
         }
@@ -44,16 +51,16 @@ public class System {
             @Override
             public boolean run(@NonNull TelemetryPacket packet){
                 ports.specimenClaw.setPosition(0);
-                ports.outtakePitchLL.setPosition(0.95);
-                ports.outtakePitchLR.setPosition(0.05);
-                ports.outtakePitchRR.setPosition(0.05);
-                ports.outtakePitchRL.setPosition(0.95);
+                ports.outtakePitchLL.setPosition(1);
+                ports.outtakePitchLR.setPosition(0);
+                ports.outtakePitchRR.setPosition(0);
+                ports.outtakePitchRL.setPosition(1);
                 return false;
             }
 
         }
 
-        public class RaiseArm implements Action {
+        public class LowerArm implements Action {
             @Override
             public boolean run(@NonNull TelemetryPacket packet){
                 ports.outtakePitchLL.setPosition(1);
@@ -64,7 +71,7 @@ public class System {
             }
         }
 
-        public class LowerArm implements Action {
+        public class RaiseArm implements Action {
             @Override
             public boolean run(@NonNull TelemetryPacket packet){
                 ports.outtakePitchLL.setPosition(0);
@@ -141,7 +148,7 @@ public class System {
         public class LowerClaw implements Action {
             @Override
             public boolean run(@NonNull TelemetryPacket packet){
-                ports.intakePitch.setPosition(0.4);
+                ports.intakePitch.setPosition(0.25);
                 return false;
             }
         }
@@ -149,7 +156,7 @@ public class System {
         public class RaiseClaw implements Action {
             @Override
             public boolean run(@NonNull TelemetryPacket packet){
-                ports.intakePitch.setPosition(1);
+                ports.intakePitch.setPosition(0.66);
                 return false;
             }
         }
@@ -166,6 +173,14 @@ public class System {
             @Override
             public boolean run(@NonNull TelemetryPacket packet){
                 ports.intakeClaw.setPosition(1);
+                return false;
+            }
+        }
+
+        public class LoosenIntake implements Action{
+            @Override
+            public boolean run(@NonNull TelemetryPacket packet){
+                ports.intakeClaw.setPosition(0.78);
                 return false;
             }
         }
@@ -188,6 +203,10 @@ public class System {
 
         public Action closeIntake(){
             return new CloseIntake();
+        }
+
+        public Action loosenIntake(){
+            return new LoosenIntake();
         }
 
     }
@@ -216,10 +235,10 @@ public class System {
             ports.lsv_r.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
             ports.lsh_l.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
             ports.lsh_r.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-            lsv_lController = new PIDController(0.0127, 0.0004, 0.000001, 0.06, 30, ports.lsv_l);
-            lsv_rController = new PIDController(0.0127, 0.0004, 0.000001, 0.06, 30, ports.lsv_r);
-            lsh_lController = new PIDController(0.0127, 0.0004, 0.000001, 0, 20, ports.lsh_l);
-            lsh_rController = new PIDController(0.0127, 0.0004, 0.000001, 0, 20, ports.lsh_r);
+            lsv_lController = new PIDController(0.014, 0.0004, 0.000001, 0.06, 30, ports.lsv_l);
+            lsv_rController = new PIDController(0.014, 0.0004, 0.000001, 0.06, 30, ports.lsv_r);
+            lsh_lController = new PIDController(0.014, 0.0004, 0.000001, 0, 20, ports.lsh_l);
+            lsh_rController = new PIDController(0.014, 0.0004, 0.000001, 0, 20, ports.lsh_r);
         }
 
         public class LowerSlides implements Action{
@@ -311,7 +330,7 @@ public class System {
             public boolean run(@NonNull TelemetryPacket packet){
                 if (!initialized) {
                     initialized = true;
-                    if(isSpeciSide){target=2050;}else{target=1300;}
+                    if(isSpeciSide){target=2100;}else{target=1300;}
                     lsh_lController.setup(target-ports.lsh_l.getCurrentPosition());
                     lsh_rController.setup(target-ports.lsh_l.getCurrentPosition());
                 }
