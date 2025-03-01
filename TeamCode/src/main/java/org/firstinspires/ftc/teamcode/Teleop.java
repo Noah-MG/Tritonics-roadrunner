@@ -1,6 +1,18 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.acmerobotics.dashboard.config.Config;
+import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
+import com.acmerobotics.roadrunner.AccelConstraint;
+import com.acmerobotics.roadrunner.Action;
+import com.acmerobotics.roadrunner.AngularVelConstraint;
+import com.acmerobotics.roadrunner.MinVelConstraint;
+import com.acmerobotics.roadrunner.ParallelAction;
+import com.acmerobotics.roadrunner.Pose2d;
+import com.acmerobotics.roadrunner.ProfileAccelConstraint;
+import com.acmerobotics.roadrunner.SequentialAction;
+import com.acmerobotics.roadrunner.SleepAction;
+import com.acmerobotics.roadrunner.VelConstraint;
+import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -13,6 +25,9 @@ import org.firstinspires.ftc.robotcore.external.navigation.Position;
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 import org.firstinspires.ftc.teamcode.auto.PIDController;
 import org.firstinspires.ftc.teamcode.auto.Ports;
+import org.firstinspires.ftc.teamcode.auto.System;
+
+import java.util.Arrays;
 
 
 @TeleOp(name = "Telekinetic Operation")
@@ -58,6 +73,8 @@ public class Teleop extends LinearOpMode {
 
     int lsv_lLast;
 
+
+
     @Override
     public void runOpMode() {
 
@@ -96,8 +113,47 @@ public class Teleop extends LinearOpMode {
         currGamepad1 = new Gamepad();
         currGamepad2 = new Gamepad();
 
+        MecanumDrive driver = new MecanumDrive(hardwareMap, new Pose2d(1, 1, 1));
+
+        System.Arm arm = new System.Arm(this, true);
+        System.Slides slides = new System.Slides(this, true);
+        System.Intake intake = new System.Intake(this, true);
+
+        VelConstraint velConstraint = new MinVelConstraint(Arrays.asList(
+                MecanumDrive.kinematics.new WheelVelConstraint(50),
+                new AngularVelConstraint(3.14)
+        ));
+        AccelConstraint accelConstraint = new ProfileAccelConstraint(-110, 110);
+
+        Action awesome = new ParallelAction(
+                arm.closeSpecimen(),
+                new SequentialAction(
+                        new SleepAction(0.5),
+                        new ParallelAction(
+                                slides.raiseSlides(),
+                                driver.actionBuilder(driver.localizer.getPose())
+                                        .setTangent(Math.toRadians(-90))
+                                        .splineToLinearHeading(new Pose2d(-2, 33, Math.toRadians(90)), Math.toRadians(-90), velConstraint, accelConstraint)
+                                        .build()))
+        );
+
+        Action awesomer = new ParallelAction(
+                driver.actionBuilder(driver.localizer.getPose())
+                        .waitSeconds(0.5)
+                        .setTangent(Math.toRadians(90))
+                        .splineToLinearHeading(new Pose2d(-40, 70, Math.toRadians(-91)), Math.toRadians(90), velConstraint, accelConstraint)
+                        .build(),
+                new SequentialAction(
+                        slides.lowerSlides(),
+                        arm.openSpecimen()
+                )
+        );
 
         ElapsedTime handoffElapsedTime = new ElapsedTime();
+
+        Boolean driveToHang = false;
+        Boolean hangDriveBack = false;
+        Boolean awesomeness = false;
 
         waitForStart();
 
@@ -106,6 +162,7 @@ public class Teleop extends LinearOpMode {
         ports.intakeRoll.setPosition(0.5);
 
         while (running) {
+            driver.localizer.update();
 
             prevGamepad1.copy(currGamepad1);
             prevGamepad2.copy(currGamepad2);
@@ -442,6 +499,63 @@ public class Teleop extends LinearOpMode {
 
             // and make a gamepad 2 function for the bumper that widens the outtake claw slightly before the manual handoff to the outtake claw
 
+            if(currGamepad2.start && !prevGamepad2.start && !hangDriveBack){
+                driveToHang = !driveToHang;
+                driver.localizer.setPose(new Pose2d(-40, 70, Math.toRadians(-90)));
+                awesome = new ParallelAction(
+                        arm.closeSpecimen(),
+                        new SequentialAction(
+                                new SleepAction(0.5),
+                                new ParallelAction(
+                                        slides.raiseSlides(),
+                                        driver.actionBuilder(driver.localizer.getPose())
+                                                .setTangent(Math.toRadians(-90))
+                                                .splineToLinearHeading(new Pose2d(-2, 33, Math.toRadians(90)), Math.toRadians(-90), velConstraint, accelConstraint)
+                                                .build()))
+                );
+            }
+
+            if(currGamepad1.start && !prevGamepad1.start && !driveToHang){
+                hangDriveBack = !hangDriveBack;
+                awesomeness = false;
+                awesomer = new ParallelAction(
+                        driver.actionBuilder(driver.localizer.getPose())
+                                .waitSeconds(0.5)
+                                .setTangent(Math.toRadians(90))
+                                .splineToLinearHeading(new Pose2d(-40, 70, Math.toRadians(-91)), Math.toRadians(90), velConstraint, accelConstraint)
+                                .build(),
+                        new SequentialAction(
+                                slides.lowerSlides(),
+                                arm.openSpecimen()
+                        )
+                );
+            }
+
+            if(driveToHang){
+                driveToHang = !awesome.run(new TelemetryPacket());
+            }
+
+            if(hangDriveBack && !awesomeness){
+                awesomeness = !awesomer.run(new TelemetryPacket());
+                if(awesomeness){
+                    awesome = new ParallelAction(
+                            arm.closeSpecimen(),
+                            new SequentialAction(
+                                    new SleepAction(0.5),
+                                    new ParallelAction(
+                                            slides.raiseSlides(),
+                                            driver.actionBuilder(driver.localizer.getPose())
+                                                    .setTangent(Math.toRadians(-90))
+                                                    .splineToLinearHeading(new Pose2d(-2, 33, Math.toRadians(90)), Math.toRadians(-90), velConstraint, accelConstraint)
+                                                    .build()))
+                    );
+                }
+            }
+
+            if(hangDriveBack && awesomeness){
+                awesomeness = awesome.run(new TelemetryPacket());
+                hangDriveBack = awesomeness;
+            }
 
             //TELEMETRY
             telemetry.addLine("Intake Inverse: " + intakeInverse);

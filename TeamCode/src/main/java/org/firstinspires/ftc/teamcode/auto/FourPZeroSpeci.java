@@ -90,9 +90,6 @@ public final class FourPZeroSpeci extends LinearOpMode {
                         )
                 ));
 
-        ports.lsh_l.setPower(0);
-        ports.lsh_r.setPower(0);
-
         Actions.runBlocking( new SequentialAction(
                 arm.openSpecimen(),
                 drive.actionBuilder(drive.localizer.getPose())
