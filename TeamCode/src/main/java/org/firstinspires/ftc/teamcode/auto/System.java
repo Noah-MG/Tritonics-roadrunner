@@ -5,6 +5,7 @@ import androidx.annotation.NonNull;
 
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
+import com.acmerobotics.roadrunner.SequentialAction;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -148,7 +149,7 @@ public class System {
         public class LowerClaw implements Action {
             @Override
             public boolean run(@NonNull TelemetryPacket packet){
-                ports.intakePitch.setPosition(0.25);
+                ports.intakePitch.setPosition(0.3);
                 return false;
             }
         }
@@ -180,7 +181,23 @@ public class System {
         public class LoosenIntake implements Action{
             @Override
             public boolean run(@NonNull TelemetryPacket packet){
-                ports.intakeClaw.setPosition(0.78);
+                ports.intakeClaw.setPosition(0.9);
+                return false;
+            }
+        }
+
+        public class SquareIntake implements Action{
+            @Override
+            public boolean run(@NonNull TelemetryPacket packet){
+                ports.intakeRoll.setPosition(0.5);
+                return false;
+            }
+        }
+
+        public class RotateIntake implements Action{
+            @Override
+            public boolean run(@NonNull TelemetryPacket packet){
+                ports.intakeRoll.setPosition(0.17);
                 return false;
             }
         }
@@ -207,6 +224,14 @@ public class System {
 
         public Action loosenIntake(){
             return new LoosenIntake();
+        }
+
+        public Action squareIntake(){
+            return new SquareIntake();
+        }
+
+        public Action rotateIntake(){
+            return new RotateIntake();
         }
 
     }
@@ -330,7 +355,7 @@ public class System {
             public boolean run(@NonNull TelemetryPacket packet){
                 if (!initialized) {
                     initialized = true;
-                    if(isSpeciSide){target=2100;}else{target=1300;}
+                    if(isSpeciSide){target=2100;}else{target=1800;}
                     lsh_lController.setup(target-ports.lsh_l.getCurrentPosition());
                     lsh_rController.setup(target-ports.lsh_l.getCurrentPosition());
                 }
@@ -349,20 +374,38 @@ public class System {
             }
         }
 
+        public class StopHoriz implements Action{
+            @Override
+            public boolean run(@NonNull TelemetryPacket packet){
+                ports.lsh_l.setPower(0);
+                ports.lsh_r.setPower(0);
+                return false;
+            }
+        }
+
+        public class StopVerti implements Action{
+            @Override
+            public boolean run(@NonNull TelemetryPacket packet){
+                ports.lsv_l.setPower(lsv_lController.Kf);
+                ports.lsv_r.setPower(lsv_rController.Kf);
+                return false;
+            }
+        }
+
         public Action lowerSlides() {
-            return new LowerSlides();
+            return new SequentialAction(new LowerSlides(), new StopVerti());
         }
 
         public Action raiseSlides() {
-            return new RaiseSlides();
+            return new SequentialAction(new RaiseSlides(), new StopVerti());
         }
 
         public Action retractSlides() {
-            return new RetractSlides();
+            return new SequentialAction(new RetractSlides(), new StopHoriz());
         }
 
         public Action extendSlides() {
-            return new ExtendSlides();
+            return new SequentialAction(new ExtendSlides(), new StopHoriz());
         }
 
     }

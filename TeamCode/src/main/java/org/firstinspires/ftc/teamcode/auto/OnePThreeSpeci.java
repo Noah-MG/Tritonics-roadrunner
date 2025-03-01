@@ -28,12 +28,12 @@ import java.util.Arrays;
 public final class OnePThreeSpeci extends LinearOpMode {
     Pose2d initialPose = new Pose2d(-10, 65, Math.toRadians(90));
 
-    public static double x_offset = -4;
+    public static double x_offset = -6;
 
     public static double tvc = 50.0;
     public static double avc = 3.14;
-    public static double minac = -30.0;
-    public static double maxac = 50.0;
+    public static double minac = -110;
+    public static double maxac = 110;
 
 //    public final TurnConstraints defaultTurnConstraints = new TurnConstraints(
 //            PARAMS.maxAngVel, -PARAMS.maxAngAccel, PARAMS.maxAngAccel);
@@ -71,7 +71,7 @@ public final class OnePThreeSpeci extends LinearOpMode {
         Actions.runBlocking(
                 new ParallelAction(
                         drive.actionBuilder(initialPose)
-                                .strafeTo(new Vector2d(-3, 34), velConstraint, accelConstraint)
+                                .strafeTo(new Vector2d(-3, 34))
                                 .build(),
                         arm.closeSpecimen(),
                         slides.raiseSlides(),
@@ -83,7 +83,7 @@ public final class OnePThreeSpeci extends LinearOpMode {
                 new ParallelAction(
                         drive.actionBuilder(drive.localizer.getPose())
                                 .waitSeconds(0.5)
-                                .strafeToLinearHeading(new Vector2d(-30+x_offset, 47), Math.toRadians(250), velConstraint, accelConstraint)
+                                .strafeToLinearHeading(new Vector2d(-30+x_offset, 47), Math.toRadians(250))
                                 .build(),
                         slides.lowerSlides(),
                         new SequentialAction(
@@ -99,7 +99,7 @@ public final class OnePThreeSpeci extends LinearOpMode {
         Actions.runBlocking( new SequentialAction(
                 arm.openSpecimen(),
                 drive.actionBuilder(drive.localizer.getPose())
-                        .turn(Math.toRadians(-110))
+                        .turn(Math.toRadians(-120))
                         .build()
         ));
 
@@ -107,7 +107,7 @@ public final class OnePThreeSpeci extends LinearOpMode {
                 intake.raiseClaw(),
                 drive.actionBuilder(drive.localizer.getPose())
                         .setTangent(Math.toRadians(14))
-                        .strafeToLinearHeading(new Vector2d(-39+x_offset, 47), Math.toRadians(250), velConstraint, accelConstraint)
+                        .strafeToLinearHeading(new Vector2d(-39+x_offset, 47), Math.toRadians(250))
                         .build()
         ));
 
@@ -115,7 +115,7 @@ public final class OnePThreeSpeci extends LinearOpMode {
                 intake.lowerPaddle(),
                 drive.actionBuilder(drive.localizer.getPose())
                         .waitSeconds(0.4)
-                        .turn(Math.toRadians(-110))
+                        .turn(Math.toRadians(-120))
                         .build()
         ));
 
@@ -140,7 +140,7 @@ public final class OnePThreeSpeci extends LinearOpMode {
                             slides.raiseSlides(),
                             drive.actionBuilder(drive.localizer.getPose())
                                     .setTangent(Math.toRadians(-90))
-                                    .splineToLinearHeading(new Pose2d(-1, 33, Math.toRadians(90)), Math.toRadians(-90), velConstraint, accelConstraint)
+                                    .splineToLinearHeading(new Pose2d(-2, 33, Math.toRadians(90)), Math.toRadians(-90), velConstraint, accelConstraint)
                                     .build()))
                 ));
 
@@ -194,7 +194,7 @@ public final class OnePThreeSpeci extends LinearOpMode {
                                         slides.raiseSlides(),
                                         drive.actionBuilder(drive.localizer.getPose())
                                                 .setTangent(Math.toRadians(-90))
-                                                .splineToLinearHeading(new Pose2d(2, 33, Math.toRadians(90)), Math.toRadians(-90), velConstraint, accelConstraint)
+                                                .splineToLinearHeading(new Pose2d(3, 33, Math.toRadians(90)), Math.toRadians(-90), velConstraint, accelConstraint)
                                                 .build()))
                 ));
 
