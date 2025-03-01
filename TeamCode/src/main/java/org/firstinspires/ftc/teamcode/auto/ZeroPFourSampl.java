@@ -4,10 +4,8 @@ import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.Pose2d;
-import com.acmerobotics.roadrunner.RaceAction;
 import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.SleepAction;
-import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -106,7 +104,8 @@ public class ZeroPFourSampl extends LinearOpMode {
                         )
                 ),
                 new SleepAction(1),
-                arm.openOuttake()
+                arm.openOuttake(),
+                intake.closeIntake()
         ));
 
         sleep(1000);
@@ -128,9 +127,9 @@ public class ZeroPFourSampl extends LinearOpMode {
                                 intake.openIntake()
                         )),
                 intake.squareIntake(),
-                new SleepAction(1),
+                new SleepAction(0.5),
                 intake.closeIntake(),
-                new SleepAction(1),
+                new SleepAction(0.5),
                 handoff
         ));
 
