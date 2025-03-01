@@ -197,7 +197,7 @@ public class System {
         public class RotateIntake implements Action{
             @Override
             public boolean run(@NonNull TelemetryPacket packet){
-                ports.intakeRoll.setPosition(0.17);
+                ports.intakeRoll.setPosition(0.83);
                 return false;
             }
         }
