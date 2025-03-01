@@ -34,6 +34,7 @@ public class System {
             public boolean run(@NonNull TelemetryPacket packet){
                 if(!initialized) {
                     ports.specimenClaw.setPosition(0.25);
+                    initialized = true;
                 }
                 if(elapsedTime.seconds()>1) {
                     ports.outtakePitchLL.setPosition(0.9);

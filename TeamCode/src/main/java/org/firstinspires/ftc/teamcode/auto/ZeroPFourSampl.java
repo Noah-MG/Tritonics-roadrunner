@@ -42,6 +42,20 @@ public class ZeroPFourSampl extends LinearOpMode {
                 new SleepAction(0.6),
                 intake.openIntake());
 
+        Action handoff2 = new SequentialAction(
+                intake.raiseClaw(),
+                intake.loosenIntake(),
+                arm.openOuttake(),
+                arm.closeSpecimen(),
+                new SleepAction(0.3),
+                new ParallelAction(
+                        slides.lowerSlides(),
+                        slides.retractSlides()
+                ),
+                arm.closeOuttake(),
+                new SleepAction(0.6),
+                intake.openIntake());
+
         waitForStart();
 
         if (isStopRequested()) {
@@ -130,7 +144,7 @@ public class ZeroPFourSampl extends LinearOpMode {
                 new SleepAction(0.5),
                 intake.closeIntake(),
                 new SleepAction(0.5),
-                handoff
+                handoff2
         ));
 
         Actions.runBlocking(new SequentialAction(
