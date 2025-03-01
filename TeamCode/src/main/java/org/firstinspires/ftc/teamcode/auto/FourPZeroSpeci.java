@@ -9,14 +9,11 @@ import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.ProfileAccelConstraint;
 import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.SleepAction;
-import com.acmerobotics.roadrunner.TranslationalVelConstraint;
-import com.acmerobotics.roadrunner.TurnConstraints;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.VelConstraint;
 import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.MecanumDrive;
 
@@ -24,8 +21,8 @@ import java.util.Arrays;
 
 
 @Config
-@Autonomous(name = "1+3 Specimen")
-public final class OnePThreeSpeci extends LinearOpMode {
+@Autonomous(name = "4+0 Specimen")
+public final class FourPZeroSpeci extends LinearOpMode {
     Pose2d initialPose = new Pose2d(-10, 65, Math.toRadians(90));
 
     public static double x_offset = -6;
