@@ -265,7 +265,18 @@ public class Teleop extends LinearOpMode {
 
             // **** FINAL HANG ****
             if(currGamepad2.left_stick_button && currGamepad2.right_trigger>0.8){
-                running = false;
+                ElapsedTime endTime = new ElapsedTime();
+                while(endTime.seconds()<10 && !(currGamepad1.left_stick_button || currGamepad1.right_stick_button)){
+                    ports.fr.setPower(0);
+                    ports.fl.setPower(0);
+                    ports.br.setPower(0);
+                    ports.bl.setPower(0);
+                    ports.lsh_l.setPower(-0.1);
+                    ports.lsh_l.setPower(-0.1);
+
+                    ports.lsv_l.setPower(-1);
+                    ports.lsv_r.setPower(-1);
+                }
             }
 
             // **** SERVOS ****
@@ -408,97 +419,6 @@ public class Teleop extends LinearOpMode {
                 }
             }
 
-             /*
-             * 1. intakeClaw -> 0.05 & outtakeClaw -> 0.15 & intakePitch -> 0.4 & outtakePitch -> 0 & horizontalSlides -> 1700 if horizontalSlides < 1700 & verticalSlides -> 0
-             * 2. horizontalSlides -> 910 & intakeClaw -> 0.04
-             * 3. outtakeClaw -> 0.25 & intakeClaw -> 0.03
-             * 4. horizontalSlides -> 1300
-             */
-
-
-//            if(currGamepad1.dpad_up && !prevGamepad1.dpad_up) {
-//                handoffStep = 1;
-//                // Why negative? -SC
-//                lsv_lController.setup(ports.lsv_l.getCurrentPosition());
-//                lsv_rController.setup(ports.lsv_r.getCurrentPosition());
-//            }
-//            if(handoffStep == 1){
-//                // set claw to closed
-//                ports.intakeClaw.setPosition(0.85);
-//                // set intake claw open
-//                ports.outtakeClaw.setPosition(0.25);
-//                telemetry.addLine("set intake claw closed, set outtake claw open");
-//                telemetry.update();
-//                // I would avoid sleep() in teleop.  You have a loop running
-//                // and you are interrupting that loop.  Use a timer and a while
-//                // loop instead.  THen use state variables like handoffStep to control
-//                // what can run or can't run while you are waiting.
-//                // bring intake claw up and over
-//                ports.intakePitch.setPosition(0.3);
-//                // bring outtake claw up and over
-//                ports.outtakePitchL.setPosition(0);
-//                ports.outtakePitchR.setPosition(1);
-//                telemetry.addLine("set intake claw up and over, set outtake claw up and over");
-//                telemetry.update();
-                // bring slides out enough so that the incoming claw doesn't bash them
-//                if(ports.lsh_l.getCurrentPosition() < 1700 || ports.lsh_r.getCurrentPosition() < 1700){
-//                    ports.lsh_r.setPower(1);
-//                } else {
-//                    ports.lsh_l.setPower(0);
-//                    ports.lsh_r.setPower(0);
-//                }
-                // bring linear slides down
-//                ports.lsv_l.setPower(lsv_lController.evaluate(ports.lsv_l.getCurrentPosition()));
-//                ports.lsv_r.setPower(lsv_rController.evaluate(ports.lsv_r.getCurrentPosition()));
-//                // begin handoff setup 2
-//                // Shouldn't lsh_l and lsh_r be greater than 1700? -SC
-//                if((ports.lsv_l.getCurrentPosition() < 20 || ports.lsv_r.getCurrentPosition() < 20) && (ports.lsh_l.getCurrentPosition() < 1700 || ports.lsh_r.getCurrentPosition() < 1700)){
-//                    handoffStep = 2;
-//                    telemetry.addLine("here now 1!");
-                //}
-//            }
-//            if(handoffStep == 2){
-//                telemetry.addLine("here now 2!");
-//                // slightly widen intake claw so it's ready to hand the specimen off to the outtake claw
-//                ports.intakeClaw.setPosition(0.04);
-//                // bring the horizontal linear slides in
-//                ports.lsh_l.setPower(1);
-//                ports.lsh_r.setPower(1);
-//                // begin step 3
-//                if(ports.lsh_l.getCurrentPosition() <  940 || ports.lsh_r.getCurrentPosition() < 940){
-//                    ports.lsh_l.setPower(0);
-//                    ports.lsh_r.setPower(0);
-//                    handoffStep = 3;
-//                }
-//            }
-//            if(handoffStep == 3){
-//                // outtake claw grabs onto the specimen
-//                ports.outtakeClaw.setPosition(0.25);
-//                // intake claw releases specimen
-//                ports.intakeClaw.setPosition(0.03);
-//                // begin handoff step 4
-//                if(ports.intakeClaw.getPosition() < 0.35){
-//                    handoffStep = 4;
-//                }
-//            }
-//            if(handoffStep == 4){
-//                // bring horizontal linear slides out enough
-//                ports.lsh_l.setPower(1);
-//                ports.lsh_r.setPower(1);
-//                if(ports.lsh_l.getCurrentPosition() > 1700 || ports.lsh_r.getCurrentPosition() > 1700){
-//                    ports.lsh_l.setPower(0);
-//                    ports.lsh_r.setPower(0);
-//                    handoffStep = 0;
-//                }
-//            }
-
-            // WHAT NEEDS TO BE ADDED TO GAMEPAD 1
-            // low basket set position and high basket set position
-            // low chamber and high chamber set position
-            // move a set distance back from the chamber to lock the specimen on the hanging bar
-
-            // and make a gamepad 2 function for the bumper that widens the outtake claw slightly before the manual handoff to the outtake claw
-
             if(currGamepad2.start && !prevGamepad2.start && !hangDriveBack){
                 driveToHang = !driveToHang;
                 driver.localizer.setPose(new Pose2d(-40, 70, Math.toRadians(-90)));
@@ -570,22 +490,11 @@ public class Teleop extends LinearOpMode {
             telemetry.addData("Linear Slide Horizontal Right Position", ports.lsh_r.getCurrentPosition());
             telemetry.addData("Linear Slide Horizontal Left Position", ports.lsh_l.getCurrentPosition());
             telemetry.addData("Handoff step: ", handoffStep);
-            telemetry.addData("button pressed:((((( ", gamepad1.dpad_up);
             telemetry.addData("timer", handoffElapsedTime);
             telemetry.update();
 
             elapsedTime.reset();
         }
 
-        ports.fr.setPower(0);
-        ports.fl.setPower(0);
-        ports.br.setPower(0);
-        ports.bl.setPower(0);
-
-        ports.lsv_l.setPower(-1);
-        ports.lsv_r.setPower(-1);
-        sleep(10000);
-        ports.lsv_l.setPower(0);
-        ports.lsv_r.setPower(0);
     }
 }
