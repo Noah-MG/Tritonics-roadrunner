@@ -56,12 +56,12 @@ public class ZeroPFourSampl extends LinearOpMode {
 
         Actions.runBlocking(
             new ParallelAction(
-                intake.squareIntake(),
-                intake.closeIntake(),
-                drive.actionBuilder(initialPose)
-                    .setTangent(Math.toRadians(-90))
-                    .splineToLinearHeading(new Pose2d(56.5, 58, Math.toRadians(215)), Math.toRadians(45))
-                    .build(),
+//                intake.squareIntake(),
+//                intake.closeIntake(),
+//                drive.actionBuilder(initialPose)
+//                    .setTangent(Math.toRadians(-90))
+//                    .splineToLinearHeading(new Pose2d(56.5, 58, Math.toRadians(215)), Math.toRadians(45))
+//                    .build(),
                 slides.raiseSlides(),
                 new SequentialAction(
                         new SleepAction(1),
@@ -79,16 +79,16 @@ public class ZeroPFourSampl extends LinearOpMode {
                         arm.openOuttake(),
                         arm.lowerArm(),
                         slides.lowerSlides(),
-                        drive.actionBuilder(drive.localizer.getPose())
-                                .strafeToLinearHeading(new Vector2d(55, 50), Math.toRadians(-90))
-                                .build(),
+//                        drive.actionBuilder(drive.localizer.getPose())
+//                                .strafeToLinearHeading(new Vector2d(55, 50), Math.toRadians(-90))
+//                                .build(),
                         slides.extendSlides(),
                         new SequentialAction(
                                 new SleepAction(0.7),
                                 intake.lowerClaw(),
                                 intake.openIntake()
                         )),
-                new SleepAction(0.5),
+                new SleepAction(1),
                 intake.closeIntake(),
                 new SleepAction(1),
                 handoff
@@ -96,10 +96,10 @@ public class ZeroPFourSampl extends LinearOpMode {
 
         Actions.runBlocking(new SequentialAction(
                 new ParallelAction(
-                        drive.actionBuilder(drive.localizer.getPose())
-                                .setTangent(Math.toRadians(90))
-                                .splineToLinearHeading(new Pose2d(56.5, 58, Math.toRadians(215)), Math.toRadians(45))
-                                .build(),
+//                        drive.actionBuilder(drive.localizer.getPose())
+//                                .setTangent(Math.toRadians(90))
+//                                .splineToLinearHeading(new Pose2d(56.5, 58, Math.toRadians(215)), Math.toRadians(45))
+//                                .build(),
                         slides.raiseSlides(),
                         new SequentialAction(
                                 new SleepAction(2),
@@ -110,14 +110,16 @@ public class ZeroPFourSampl extends LinearOpMode {
                 arm.openOuttake()
         ));
 
+        sleep(1000);
+
         Actions.runBlocking(new ParallelAction(
                 new ParallelAction(
                         arm.closeOuttake(),
                         arm.lowerArm(),
                         slides.lowerSlides(),
-                        drive.actionBuilder(drive.localizer.getPose())
-                                .strafeToLinearHeading(new Vector2d(68, 50), Math.toRadians(-90))
-                                .build(),
+//                        drive.actionBuilder(drive.localizer.getPose())
+//                                .strafeToLinearHeading(new Vector2d(68, 50), Math.toRadians(-90))
+//                                .build(),
                         slides.extendSlides(),
                         new SequentialAction(
                                 new SleepAction(0.7),
@@ -131,20 +133,26 @@ public class ZeroPFourSampl extends LinearOpMode {
                 handoff
         ));
 
-        Actions.runBlocking(new SequentialAction(
+        Actions.runBlocking(new ParallelAction(
                 new ParallelAction(
-                        drive.actionBuilder(drive.localizer.getPose())
-                                .setTangent(Math.toRadians(90))
-                                .splineToLinearHeading(new Pose2d(56.5, 58, Math.toRadians(215)), Math.toRadians(45))
-                                .build(),
-                        slides.raiseSlides(),
+                        arm.closeOuttake(),
+                        arm.lowerArm(),
+                        slides.lowerSlides(),
+//                        drive.actionBuilder(drive.localizer.getPose())
+//                                .strafeToLinearHeading(56.5, 58, Math.toRadians(215)), Math.toRadians(45))
+//                                .build(),
+                        slides.extendSlides(),
                         new SequentialAction(
-                                new SleepAction(2),
-                                arm.raiseArm()
-                        )
-                ),
-                arm.openOuttake(),
-                new SleepAction(0.2)
+                                new SleepAction(0.7),
+                                intake.lowerClaw(),
+                                new SleepAction(1),
+                                intake.openIntake()
+                        )),
+                new SleepAction(0.5),
+                intake.closeIntake(),
+                new SleepAction(1),
+                handoff
         ));
+
     }
 }
