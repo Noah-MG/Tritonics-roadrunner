@@ -33,7 +33,7 @@ public class System {
             @Override
             public boolean run(@NonNull TelemetryPacket packet){
                 if(!initialized) {
-                    ports.specimenClaw.setPosition(1);
+                    ports.specimenClaw.setPosition(0.25);
                 }
                 if(elapsedTime.seconds()>1) {
                     ports.outtakePitchLL.setPosition(0.9);
@@ -94,7 +94,7 @@ public class System {
         public class CloseOuttake implements Action{
             @Override
             public boolean run(@NonNull TelemetryPacket packet){
-                ports.outtakeClaw.setPosition(1);
+                ports.outtakeClaw.setPosition(0.23);
                 return false;
             }
         }
@@ -165,7 +165,7 @@ public class System {
         public class OpenIntake implements Action {
             @Override
             public boolean run(@NonNull TelemetryPacket packet){
-                ports.intakeClaw.setPosition(0);
+                ports.intakeClaw.setPosition(0.7);
                 return false;
             }
         }
@@ -173,7 +173,7 @@ public class System {
         public class CloseIntake implements Action {
             @Override
             public boolean run(@NonNull TelemetryPacket packet){
-                ports.intakeClaw.setPosition(1);
+                ports.intakeClaw.setPosition(0.96);
                 return false;
             }
         }
