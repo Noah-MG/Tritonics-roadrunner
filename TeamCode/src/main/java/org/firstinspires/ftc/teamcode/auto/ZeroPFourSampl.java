@@ -32,9 +32,7 @@ public class ZeroPFourSampl extends LinearOpMode {
 
         Action handoff = new SequentialAction(
                 intake.raiseClaw(),
-                new SleepAction(0.3),
                 intake.loosenIntake(),
-                new SleepAction(0.3),
                 arm.openOuttake(),
                 arm.closeSpecimen(),
                 new SleepAction(0.3),
@@ -128,6 +126,7 @@ public class ZeroPFourSampl extends LinearOpMode {
                                 intake.lowerClaw(),
                                 intake.openIntake()
                         )),
+                intake.squareIntake(),
                 new SleepAction(1),
                 intake.closeIntake(),
                 new SleepAction(1),
