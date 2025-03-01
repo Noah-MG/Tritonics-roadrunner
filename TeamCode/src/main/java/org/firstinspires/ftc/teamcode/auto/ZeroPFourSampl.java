@@ -51,6 +51,7 @@ public class ZeroPFourSampl extends LinearOpMode {
         }
 
         ports.intakePitch.setPosition(0.55);
+        ports.intakeRoll.setPosition(0.5);
 
         Actions.runBlocking(
             new ParallelAction(
