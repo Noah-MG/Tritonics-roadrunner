@@ -17,22 +17,26 @@ import org.firstinspires.ftc.teamcode.MecanumDrive;
 public final class testing extends LinearOpMode {
     Pose2d initialPose = new Pose2d(-10, 65, Math.toRadians(90));
 
-    public static double x_offset = -4;
+    public static double intakePos = 0.5;
+    public static double outtakePos = 0.5;
+    public static double speciPos = 0.5;
 
     @Override
     public void runOpMode(){
 
-        System.Arm arm = new System.Arm(this, true);
-        System.Slides slides = new System.Slides(this, true);
-        System.Intake intake = new System.Intake(this, true);
-        MecanumDrive drive = new MecanumDrive(hardwareMap, initialPose);
+        Ports.Builder builder = new Ports.Builder();
+        builder.allActive = true;
+        Ports ports = new Ports(this, builder);
 
         waitForStart();
 
         if(isStopRequested()){return;}
 
-        Actions.runBlocking(intake.lowerPaddle());
+        while(opModeIsActive()){
+            ports.intakeClaw.setPosition(intakePos);
+            ports.outtakeClaw.setPosition(outtakePos);
+            ports.specimenClaw.setPosition(speciPos);
+        }
 
-        sleep(2000);
     }
 }
