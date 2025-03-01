@@ -210,7 +210,7 @@ public class Teleop extends LinearOpMode {
             // **** HORIZONTAL SLIDES ****
             double horizontal = currGamepad2.right_stick_x;
 
-            if(ports.lsh_r.getCurrentPosition() < 2500 && ports.lsh_l.getCurrentPosition() < 2500) {
+            if((ports.lsh_r.getCurrentPosition() < 2500 && ports.lsh_l.getCurrentPosition() < 2500) || horizontal<0) {
                 ports.lsh_r.setPower(horizontal);
                 ports.lsh_l.setPower(horizontal);
             } else {
