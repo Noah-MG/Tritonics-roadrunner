@@ -9,16 +9,15 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 import org.firstinspires.ftc.robotcore.external.navigation.Position;
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 import org.firstinspires.ftc.teamcode.auto.PIDController;
 import org.firstinspires.ftc.teamcode.auto.Ports;
 
 
-@TeleOp(name = "TeleOp State")
+@TeleOp(name = "Telekinetic Operation")
 @Config
-public class NewTeleOp extends LinearOpMode {
+public class Teleop extends LinearOpMode {
 
     Ports ports;
     Ports.Builder builder;
@@ -175,10 +174,10 @@ public class NewTeleOp extends LinearOpMode {
             double yaw = currGamepad1.right_stick_x;
 
             if(currGamepad1.dpad_left) {
-                strafe = 1;
+                strafe = -1;
                 drive = 0.2;
             }else if(currGamepad1.dpad_right) {
-                strafe = -1;
+                strafe = 1;
                 drive = 0.2;
             }
 
@@ -208,7 +207,7 @@ public class NewTeleOp extends LinearOpMode {
             ports.br.setPower(br);
 
             // **** FINAL HANG ****
-            if(currGamepad1.left_stick_button && currGamepad2.left_stick_button){
+            if(currGamepad2.left_stick_button && currGamepad2.right_trigger>0.8){
                 running = false;
             }
 
@@ -258,7 +257,7 @@ public class NewTeleOp extends LinearOpMode {
                     ports.intakeRoll.setPosition(0.5);
                     intakeInverse = false;
                 } else {
-                    ports.intakeRoll.setPosition(0.17);
+                    ports.intakeRoll.setPosition(0.83);
                 }
             }
 
@@ -283,9 +282,9 @@ public class NewTeleOp extends LinearOpMode {
             if(currGamepad1.dpad_up && !prevGamepad1.dpad_up && handoffStep == 0){
                 handoffStep = 1;
                 handoffElapsedTime.reset();
+            }else if(currGamepad1.dpad_up && !prevGamepad1.dpad_up && handoffStep != 0){
+                handoffStep = 0;
             }
-
-
 
             //Handoff Try 2
 
