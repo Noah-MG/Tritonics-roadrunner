@@ -6,6 +6,7 @@ import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.SleepAction;
+import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -32,7 +33,7 @@ public class ZeroPFourSampl extends LinearOpMode {
                 intake.raiseClaw(),
                 intake.loosenIntake(),
                 arm.openOuttake(),
-                arm.closeSpecimen(),
+                arm.partial(),
                 new SleepAction(0.3),
                 new ParallelAction(
                         slides.lowerSlides(),
@@ -46,7 +47,7 @@ public class ZeroPFourSampl extends LinearOpMode {
                 intake.raiseClaw(),
                 intake.loosenIntake(),
                 arm.openOuttake(),
-                arm.closeSpecimen(),
+                arm.partial(),
                 new SleepAction(0.3),
                 new ParallelAction(
                         slides.lowerSlides(),
@@ -63,16 +64,15 @@ public class ZeroPFourSampl extends LinearOpMode {
         }
 
         ports.intakePitch.setPosition(0.55);
-        ports.intakeRoll.setPosition(0.5);
 
         Actions.runBlocking(
             new ParallelAction(
-//                intake.squareIntake(),
-//                intake.closeIntake(),
-//                drive.actionBuilder(initialPose)
-//                    .setTangent(Math.toRadians(-90))
-//                    .splineToLinearHeading(new Pose2d(56.5, 58, Math.toRadians(215)), Math.toRadians(45))
-//                    .build(),
+                intake.squareIntake(),
+                intake.closeIntake(),
+                drive.actionBuilder(initialPose)
+                    .setTangent(Math.toRadians(-90))
+                    .splineToLinearHeading(new Pose2d(57.5, 59, Math.toRadians(215)), Math.toRadians(45))
+                    .build(),
                 slides.raiseSlides(),
                 new SequentialAction(
                         new SleepAction(1),
@@ -90,9 +90,9 @@ public class ZeroPFourSampl extends LinearOpMode {
                         arm.openOuttake(),
                         arm.lowerArm(),
                         slides.lowerSlides(),
-//                        drive.actionBuilder(drive.localizer.getPose())
-//                                .strafeToLinearHeading(new Vector2d(55, 50), Math.toRadians(-90))
-//                                .build(),
+                        drive.actionBuilder(drive.localizer.getPose())
+                                .strafeToLinearHeading(new Vector2d(55, 50), Math.toRadians(-90))
+                                .build(),
                         slides.extendSlides(),
                         new SequentialAction(
                                 new SleepAction(0.7),
@@ -107,10 +107,10 @@ public class ZeroPFourSampl extends LinearOpMode {
 
         Actions.runBlocking(new SequentialAction(
                 new ParallelAction(
-//                        drive.actionBuilder(drive.localizer.getPose())
-//                                .setTangent(Math.toRadians(90))
-//                                .splineToLinearHeading(new Pose2d(56.5, 58, Math.toRadians(215)), Math.toRadians(45))
-//                                .build(),
+                        drive.actionBuilder(drive.localizer.getPose())
+                                .setTangent(Math.toRadians(90))
+                                .splineToLinearHeading(new Pose2d(57.5, 59, Math.toRadians(215)), Math.toRadians(45))
+                                .build(),
                         slides.raiseSlides(),
                         new SequentialAction(
                                 new SleepAction(2),
@@ -122,6 +122,7 @@ public class ZeroPFourSampl extends LinearOpMode {
                 intake.closeIntake()
         ));
 
+        ports.intakePitch.setPosition(0.55);
         sleep(1000);
 
         Actions.runBlocking(new SequentialAction(
@@ -131,9 +132,9 @@ public class ZeroPFourSampl extends LinearOpMode {
                         arm.openOuttake(),
                         arm.lowerArm(),
                         slides.lowerSlides(),
-//                        drive.actionBuilder(drive.localizer.getPose())
-//                                .strafeToLinearHeading(new Vector2d(66, 50), Math.toRadians(-90))
-//                                .build(),
+                        drive.actionBuilder(drive.localizer.getPose())
+                                .strafeToLinearHeading(new Vector2d(66, 48), Math.toRadians(-80))
+                                .build(),
                         slides.extendSlides(),
                         new SequentialAction(
                                 new SleepAction(0.7),
@@ -149,10 +150,10 @@ public class ZeroPFourSampl extends LinearOpMode {
 
         Actions.runBlocking(new SequentialAction(
                 new ParallelAction(
-//                        drive.actionBuilder(drive.localizer.getPose())
-//                                .setTangent(Math.toRadians(90))
-//                                .splineToLinearHeading(new Pose2d(56.5, 58, Math.toRadians(215)), Math.toRadians(45))
-//                                .build(),
+                        drive.actionBuilder(drive.localizer.getPose())
+                                .setTangent(Math.toRadians(90))
+                                .splineToLinearHeading(new Pose2d(57.5, 59, Math.toRadians(215)), Math.toRadians(45))
+                                .build(),
                         slides.raiseSlides(),
                         new SequentialAction(
                                 new SleepAction(2),
@@ -160,8 +161,13 @@ public class ZeroPFourSampl extends LinearOpMode {
                         )
                 ),
                 new SleepAction(1),
-                arm.openOuttake()
+                arm.openOuttake(),
+                new SleepAction(1),
+                arm.lowerArm(),
+                slides.lowerSlides()
         ));
+
+        sleep(1000);
 
     }
 }

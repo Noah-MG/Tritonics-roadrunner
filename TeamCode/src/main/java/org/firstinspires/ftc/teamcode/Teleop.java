@@ -73,7 +73,9 @@ public class Teleop extends LinearOpMode {
 
     int lsv_lLast;
 
+    int counter;
 
+    Action handoff;
 
     @Override
     public void runOpMode() {
@@ -151,9 +153,11 @@ public class Teleop extends LinearOpMode {
 
         ElapsedTime handoffElapsedTime = new ElapsedTime();
 
-        Boolean driveToHang = false;
-        Boolean hangDriveBack = false;
-        Boolean awesomeness = false;
+        boolean driveToHang = false;
+        boolean hangDriveBack = false;
+        boolean awesomeness = false;
+
+        boolean specimenClosed = false;
 
         waitForStart();
 
@@ -203,19 +207,22 @@ public class Teleop extends LinearOpMode {
             }
 
             // SET POWER
-            ports.lsv_l.setPower(lsv_lPower);
-            ports.lsv_r.setPower(lsv_rPower);
-
+            if(!hangDriveBack && !driveToHang) {
+                ports.lsv_l.setPower(lsv_lPower);
+                ports.lsv_r.setPower(lsv_rPower);
+            }
 
             // **** HORIZONTAL SLIDES ****
             double horizontal = currGamepad2.right_stick_x;
 
-            if((ports.lsh_r.getCurrentPosition() < 2500 && ports.lsh_l.getCurrentPosition() < 2500) || horizontal<0) {
-                ports.lsh_r.setPower(horizontal);
-                ports.lsh_l.setPower(horizontal);
-            } else {
-                ports.lsh_r.setPower(0);
-                ports.lsh_l.setPower(0);
+            if(!hangDriveBack && !driveToHang) {
+                if ((ports.lsh_r.getCurrentPosition() < 2500 && ports.lsh_l.getCurrentPosition() < 2500) || horizontal < 0) {
+                    ports.lsh_r.setPower(horizontal);
+                    ports.lsh_l.setPower(horizontal);
+                } else {
+                    ports.lsh_r.setPower(0);
+                    ports.lsh_l.setPower(0);
+                }
             }
 
             // X = SQUARE
@@ -258,10 +265,12 @@ public class Teleop extends LinearOpMode {
                 intakeInverse = !intakeInverse;
             }
 
-            ports.fl.setPower(fl);
-            ports.fr.setPower(fr);
-            ports.bl.setPower(bl);
-            ports.br.setPower(br);
+            if(!hangDriveBack && !driveToHang) {
+                ports.fl.setPower(fl);
+                ports.fr.setPower(fr);
+                ports.bl.setPower(bl);
+                ports.br.setPower(br);
+            }
 
             // **** FINAL HANG ****
             if(currGamepad2.left_stick_button && currGamepad2.right_trigger>0.8){
@@ -286,11 +295,13 @@ public class Teleop extends LinearOpMode {
                 ports.outtakePitchLR.setPosition(1);
                 ports.outtakePitchRR.setPosition(1);
                 ports.outtakePitchRL.setPosition(0);
+                specimenClosed = false;
             } else if(currGamepad2.dpad_down){
                 ports.outtakePitchLL.setPosition(1);
                 ports.outtakePitchLR.setPosition(0);
                 ports.outtakePitchRR.setPosition(0);
                 ports.outtakePitchRL.setPosition(1);
+                specimenClosed = false;
             }
             // opens and closes outtake claw
             if(currGamepad2.dpad_right){
@@ -332,6 +343,14 @@ public class Teleop extends LinearOpMode {
             // specimen claw open and close
             if(currGamepad2.right_bumper && !prevGamepad2.right_bumper){
                 ports.specimenClaw.setPosition(0.8);
+                handoffElapsedTime.reset();
+                ports.outtakePitchLL.setPosition(0.95);
+                ports.outtakePitchLR.setPosition(0.05);
+                ports.outtakePitchRR.setPosition(0.05);
+                ports.outtakePitchRL.setPosition(0.95);
+                specimenClosed = true;
+            }
+            if(handoffElapsedTime.seconds()>1 && specimenClosed) {
                 ports.outtakePitchLL.setPosition(0.9);
                 ports.outtakePitchLR.setPosition(0.1);
                 ports.outtakePitchRR.setPosition(0.1);
@@ -339,88 +358,45 @@ public class Teleop extends LinearOpMode {
             }
             if(currGamepad2.left_bumper && !prevGamepad2.left_bumper){
                 ports.specimenClaw.setPosition(0);
-                ports.outtakePitchLL.setPosition(0.95);
-                ports.outtakePitchLR.setPosition(0.05);
-                ports.outtakePitchRR.setPosition(0.05);
-                ports.outtakePitchRL.setPosition(0.95);
+                ports.outtakePitchLL.setPosition(1);
+                ports.outtakePitchLR.setPosition(0);
+                ports.outtakePitchRR.setPosition(0);
+                ports.outtakePitchRL.setPosition(1);
+                specimenClosed = false;
             }
 
             // **** AUTOMATED HANDOFF ****
 
             if(currGamepad1.dpad_up && !prevGamepad1.dpad_up && handoffStep == 0){
                 handoffStep = 1;
-                handoffElapsedTime.reset();
+                handoff = new SequentialAction(
+                        intake.raiseClaw(),
+                        intake.squareIntake(),
+                        intake.loosenIntake(),
+                        arm.openOuttake(),
+                        arm.partial(),
+                        new SleepAction(0.3),
+                        new ParallelAction(
+                                slides.lowerSlides(),
+                                slides.retractSlides()
+                        ),
+                        arm.closeOuttake(),
+                        new SleepAction(0.6),
+                        intake.openIntake(),
+                        arm.rumble(gamepad2));
             }else if(currGamepad1.dpad_up && !prevGamepad1.dpad_up && handoffStep != 0){
+                handoffStep = 0;
+            }
+
+            if(handoffStep == 1 && !handoff.run(new TelemetryPacket())){
                 handoffStep = 0;
             }
 
             //Handoff Try 2
 
-            if(handoffStep == 1) {
-                ports.fr.setPower(0);
-                ports.br.setPower(0);
-                ports.fl.setPower(0);
-                ports.bl.setPower(0);
-
-                ports.intakePitch.setPosition(0.66);
-                ports.outtakeClaw.setPosition(0);
-                ports.intakeClaw.setPosition(0.78);
-
-                ports.outtakePitchLL.setPosition(0.97);
-                ports.outtakePitchLR.setPosition(0.03);
-                ports.outtakePitchRR.setPosition(0.03);
-                ports.outtakePitchRL.setPosition(0.97);
-
-                lsv_lController.setup(-ports.lsv_l.getCurrentPosition());
-                lsv_rController.setup(-ports.lsv_l.getCurrentPosition());
-                lsh_lController.setup(-ports.lsh_l.getCurrentPosition());
-                lsh_rController.setup(-ports.lsh_r.getCurrentPosition());
-                if(handoffElapsedTime.milliseconds() > 300) {
-                    handoffStep = 2;
-                }
-            }
-
-            if(handoffStep == 2) {
-                ports.outtakeClaw.setPosition(0);
-
-                ports.lsv_l.setPower(lsv_lController.evaluate(-ports.lsv_l.getCurrentPosition())); // error: between 0 and current pos
-                ports.lsv_r.setPower(lsv_rController.evaluate(-ports.lsv_l.getCurrentPosition()));
-                ports.lsh_l.setPower(lsh_lController.evaluate(-ports.lsh_l.getCurrentPosition()));
-                ports.lsh_r.setPower(lsh_rController.evaluate(-ports.lsh_r.getCurrentPosition()));
-
-                if(ports.lsv_l.getCurrentPosition() < 10 && (Math.abs(-ports.lsh_l.getCurrentPosition()) < 10 || Math.abs(-ports.lsh_r.getCurrentPosition()) < 10)) {
-                    handoffStep = 3;
-                    handoffElapsedTime.reset();
-                }
-            }
-
-            if(handoffStep == 3) {
-                ports.outtakeClaw.setPosition(1);
-                if(handoffElapsedTime.milliseconds() > 1000) {
-                    handoffStep = 4;
-                }
-            }
-            // You might want to use a time to add a little
-            // time between closing outtake and opening intake
-            // just to avoid the possibility of dropping.
-            if(handoffStep == 4) {
-                ports.intakeClaw.setPosition(0);
-                lsh_lController.setup(350-ports.lsh_l.getCurrentPosition());
-                lsh_rController.setup(350-ports.lsh_r.getCurrentPosition());
-                handoffStep = 5;
-            }
-
-            if(handoffStep == 5) {
-                ports.lsh_l.setPower(lsh_lController.evaluate(350-ports.lsh_l.getCurrentPosition()));
-                ports.lsh_r.setPower(lsh_rController.evaluate(350-ports.lsh_r.getCurrentPosition()));
-
-                if((Math.abs(ports.lsh_l.getCurrentPosition()-350) < 10 || Math.abs(ports.lsh_r.getCurrentPosition()-350) < 10)){
-                    handoffStep = 0;
-                }
-            }
-
             if(currGamepad2.start && !prevGamepad2.start && !hangDriveBack){
                 driveToHang = !driveToHang;
+                counter += 1;
                 driver.localizer.setPose(new Pose2d(-40, 70, Math.toRadians(-90)));
                 awesome = new ParallelAction(
                         arm.closeSpecimen(),
@@ -438,14 +414,13 @@ public class Teleop extends LinearOpMode {
             if(currGamepad1.start && !prevGamepad1.start && !driveToHang){
                 hangDriveBack = !hangDriveBack;
                 awesomeness = false;
+                counter = 0;
                 awesomer = new ParallelAction(
                         driver.actionBuilder(driver.localizer.getPose())
-                                .waitSeconds(0.5)
                                 .setTangent(Math.toRadians(90))
                                 .splineToLinearHeading(new Pose2d(-40, 70, Math.toRadians(-91)), Math.toRadians(90), velConstraint, accelConstraint)
                                 .build(),
                         new SequentialAction(
-                                slides.lowerSlides(),
                                 arm.openSpecimen()
                         )
                 );
@@ -466,7 +441,7 @@ public class Teleop extends LinearOpMode {
                                             slides.raiseSlides(),
                                             driver.actionBuilder(driver.localizer.getPose())
                                                     .setTangent(Math.toRadians(-90))
-                                                    .splineToLinearHeading(new Pose2d(-2, 33, Math.toRadians(90)), Math.toRadians(-90), velConstraint, accelConstraint)
+                                                    .splineToLinearHeading(new Pose2d(-2+counter, 33, Math.toRadians(90)), Math.toRadians(-90), velConstraint, accelConstraint)
                                                     .build()))
                     );
                 }
