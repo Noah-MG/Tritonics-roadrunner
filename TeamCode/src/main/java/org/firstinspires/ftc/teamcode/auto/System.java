@@ -295,10 +295,10 @@ public class System {
             ports.lsv_r.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
             ports.lsh_l.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
             ports.lsh_r.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-            lsv_lController = new PIDController(0.014, 0.0004, 0.000001, 0.06, 15, ports.lsv_l);
-            lsv_rController = new PIDController(0.014, 0.0004, 0.000001, 0.06, 15, ports.lsv_r);
-            lsh_lController = new PIDController(0.014, 0.0004, 0.000001, 0, 15, ports.lsh_l);
-            lsh_rController = new PIDController(0.014, 0.0004, 0.000001, 0, 15, ports.lsh_r);
+            lsv_lController = new PIDController(0.014, 0.0004, 0.000001, 0.03, 30, ports.lsv_l);
+            lsv_rController = new PIDController(0.014, 0.0004, 0.000001, 0.03, 30, ports.lsv_r);
+            lsh_lController = new PIDController(0.014, 0.0004, 0.000001, 0, 30, ports.lsh_l);
+            lsh_rController = new PIDController(0.014, 0.0004, 0.000001, 0, 30, ports.lsh_r);
         }
 
         public class LowerSlides implements Action{
@@ -390,7 +390,7 @@ public class System {
             public boolean run(@NonNull TelemetryPacket packet){
                 if (!initialized) {
                     initialized = true;
-                    if(isSpeciSide){target=2100;}else{target=1700;}
+                    if(isSpeciSide){target=2100;}else{target=1750;}
                     lsh_lController.setup(target-ports.lsh_l.getCurrentPosition());
                     lsh_rController.setup(target-ports.lsh_l.getCurrentPosition());
                 }

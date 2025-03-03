@@ -392,64 +392,15 @@ public class Teleop extends LinearOpMode {
                 handoffStep = 0;
             }
 
-            //Handoff Try 2
-
-            if(currGamepad2.start && !prevGamepad2.start && !hangDriveBack){
-                driveToHang = !driveToHang;
-                counter += 1;
-                driver.localizer.setPose(new Pose2d(-40, 70, Math.toRadians(-90)));
-                awesome = new ParallelAction(
-                        arm.closeSpecimen(),
-                        new SequentialAction(
-                                new SleepAction(0.5),
-                                new ParallelAction(
-                                        slides.raiseSlides(),
-                                        driver.actionBuilder(driver.localizer.getPose())
-                                                .setTangent(Math.toRadians(-90))
-                                                .splineToLinearHeading(new Pose2d(-2, 33, Math.toRadians(90)), Math.toRadians(-90), velConstraint, accelConstraint)
-                                                .build()))
-                );
-            }
-
-            if(currGamepad1.start && !prevGamepad1.start && !driveToHang){
-                hangDriveBack = !hangDriveBack;
-                awesomeness = false;
-                counter = 0;
-                awesomer = new ParallelAction(
-                        driver.actionBuilder(driver.localizer.getPose())
-                                .setTangent(Math.toRadians(90))
-                                .splineToLinearHeading(new Pose2d(-40, 70, Math.toRadians(-91)), Math.toRadians(90), velConstraint, accelConstraint)
-                                .build(),
-                        new SequentialAction(
-                                arm.openSpecimen()
-                        )
-                );
-            }
-
-            if(driveToHang){
-                driveToHang = !awesome.run(new TelemetryPacket());
-            }
-
-            if(hangDriveBack && !awesomeness){
-                awesomeness = !awesomer.run(new TelemetryPacket());
-                if(awesomeness){
-                    awesome = new ParallelAction(
-                            arm.closeSpecimen(),
-                            new SequentialAction(
-                                    new SleepAction(0.5),
-                                    new ParallelAction(
-                                            slides.raiseSlides(),
-                                            driver.actionBuilder(driver.localizer.getPose())
-                                                    .setTangent(Math.toRadians(-90))
-                                                    .splineToLinearHeading(new Pose2d(-2+counter, 33, Math.toRadians(90)), Math.toRadians(-90), velConstraint, accelConstraint)
-                                                    .build()))
-                    );
-                }
-            }
-
-            if(hangDriveBack && awesomeness){
-                awesomeness = awesome.run(new TelemetryPacket());
-                hangDriveBack = awesomeness;
+            if(gamepad1.dpad_down && !prevGamepad1.dpad_down){
+                ports.lsv_l.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                ports.lsh_l.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                ports.lsh_l.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                ports.lsv_l.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                ports.lsv_r.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                ports.lsv_r.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                ports.lsh_r.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                ports.lsh_r.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
             }
 
             //TELEMETRY

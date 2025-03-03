@@ -25,7 +25,7 @@ import java.util.Arrays;
 public final class FourPZeroSpeci extends LinearOpMode {
     Pose2d initialPose = new Pose2d(-10, 65, Math.toRadians(90));
 
-    public static double x_offset = -6;
+    public static double x_offset = -5;
 
     public static double tvc = 50.0;
     public static double avc = 3.14;
@@ -80,7 +80,7 @@ public final class FourPZeroSpeci extends LinearOpMode {
                 new ParallelAction(
                         drive.actionBuilder(drive.localizer.getPose())
                                 .waitSeconds(0.5)
-                                .strafeToLinearHeading(new Vector2d(-30+x_offset, 47), Math.toRadians(250))
+                                .strafeToLinearHeading(new Vector2d(-28+x_offset, 47), Math.toRadians(250))
                                 .build(),
                         slides.lowerSlides(),
                         new SequentialAction(
@@ -176,8 +176,7 @@ public final class FourPZeroSpeci extends LinearOpMode {
                         new SequentialAction(
                                 slides.lowerSlides(),
                                 arm.openSpecimen()
-                        )
-                ));
+                )));
 
         Actions.runBlocking(
                 new ParallelAction(
